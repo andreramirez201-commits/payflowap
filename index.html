@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayFlow AP — Accounts Payable Automation for Property Managers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0d0d0d;
+    --white: #fafaf8;
+    --off: #f3f2ee;
+    --muted: #8a8880;
+    --border: #e2e0db;
+    --green: #1a6b3c;
+    --green-light: #eaf3ee;
+    --green-text: #155230;
+    --red-light: #fdf0ee;
+    --red-text: #9b3a2a;
+    --accent: #1a6b3c;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,250,248,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--black);
+    letter-spacing: -0.3px;
+  }
+  .nav-brand span { color: var(--green); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .nav-link { font-size: 14px; color: var(--muted); text-decoration: none; }
+  .nav-cta {
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--black);
+    color: var(--white);
+    padding: 8px 18px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* HERO */
+  .hero {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 6rem 2rem 5rem;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green-text);
+    background: var(--green-light);
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 62px);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--black);
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--green);
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+  .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-block;
+    background: var(--black);
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 500;
+    padding: 13px 28px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary {
+    display: inline-block;
+    background: transparent;
+    color: var(--black);
+    font-size: 15px;
+    font-weight: 400;
+    padding: 13px 28px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover { background: var(--off); }
+  .hero-note { font-size: 13px; color: var(--muted); margin-top: 1rem; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); }
+
+  /* SECTIONS */
+  section { padding: 5rem 2rem; }
+  .container { max-width: 900px; margin: 0 auto; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    font-weight: 300;
+    margin-bottom: 3rem;
+  }
+
+  /* COST COMPARE */
+  .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .cost-grid { grid-template-columns: 1fr; } }
+  .cost-card {
+    background: var(--off);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  .cost-card.highlight {
+    background: var(--white);
+    border: 1px solid var(--border);
+  }
+  .cost-card-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .cost-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cost-line:last-child {
+    border-bottom: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+  .cost-zero { color: var(--green-text); font-weight: 500; }
+
+  /* COMPARE */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+  .compare-card {
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    background: var(--off);
+  }
+  .compare-card.good {
+    background: var(--white);
+    border: 1px solid var(--border);
+  }
+  .compare-card h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--muted);
+  }
+  .compare-card.good h3 { color: var(--black); }
+  .compare-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  .compare-item:last-child { border-bottom: none; }
+  .ci-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .ci-dot.bad { background: #d0594a; }
+  .ci-dot.good { background: var(--green); }
+
+  /* FEATURES */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 700px) { .features-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 440px) { .features-grid { grid-template-columns: 1fr; } }
+  .feat {
+    background: var(--off);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .feat-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--green-light);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .feat-icon svg { width: 16px; height: 16px; stroke: var(--green-text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .feat h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .feat p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* METRICS */
+  .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 600px) { .metrics-row { grid-template-columns: 1fr; } }
+  .metric-card {
+    background: var(--off);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .metric-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    line-height: 1;
+    color: var(--black);
+    letter-spacing: -1px;
+    margin-bottom: 0.4rem;
+  }
+  .metric-label { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+  /* PRICING */
+  .pricing-intro { margin-bottom: 2rem; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 700px) { .pricing-grid { grid-template-columns: 1fr; } }
+  .pricing-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .pricing-card.featured {
+    background: var(--black);
+    border-color: var(--black);
+    color: var(--white);
+  }
+  .pricing-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--green-light);
+    color: var(--green-text);
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+    align-self: flex-start;
+  }
+  .pricing-card.featured .pricing-badge {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.9);
+  }
+  .pricing-name { font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 2px; }
+  .pricing-card.featured .pricing-name { color: rgba(255,255,255,0.6); }
+  .pricing-vol { font-size: 12px; color: var(--muted); margin-bottom: 0.75rem; }
+  .pricing-card.featured .pricing-vol { color: rgba(255,255,255,0.5); }
+  .pricing-price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    line-height: 1;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+  .pricing-period { font-size: 14px; font-weight: 300; letter-spacing: 0; }
+  .pricing-roi { font-size: 12px; color: var(--green-text); margin: 0.5rem 0 1rem; }
+  .pricing-card.featured .pricing-roi { color: #7dd9a8; }
+  .pricing-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .pricing-card.featured .pricing-divider { border-color: rgba(255,255,255,0.15); }
+  .pricing-features { list-style: none; flex: 1; margin-bottom: 1.25rem; }
+  .pricing-features li {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 4px 0;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.4;
+  }
+  .pricing-card.featured .pricing-features li { color: rgba(255,255,255,0.7); }
+  .pf-check { color: var(--green); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .pricing-card.featured .pf-check { color: #7dd9a8; }
+  .pricing-btn {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 11px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: opacity 0.2s, background 0.2s;
+    border: 1px solid var(--border);
+    color: var(--black);
+    background: var(--off);
+  }
+  .pricing-btn:hover { background: var(--border); }
+  .pricing-btn.primary {
+    background: var(--white);
+    color: var(--black);
+    border-color: var(--white);
+  }
+  .pricing-btn.primary:hover { opacity: 0.9; }
+  .pricing-note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 1rem; }
+
+  /* GUARANTEE */
+  .guarantee-box {
+    background: var(--green-light);
+    border-radius: var(--radius);
+    padding: 2rem;
+  }
+  .guarantee-box h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--green-text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.3px;
+  }
+  .guarantee-box > p { font-size: 14px; color: var(--green-text); line-height: 1.7; margin-bottom: 1.5rem; opacity: 0.85; }
+  .guarantee-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 500px) { .guarantee-items { grid-template-columns: 1fr; } }
+  .g-item {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+  }
+  .g-item h4 { font-size: 13px; font-weight: 500; margin-bottom: 3px; color: var(--black); }
+  .g-item p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* FINAL CTA */
+  .final-cta {
+    background: var(--black);
+    color: var(--white);
+    text-align: center;
+    padding: 6rem 2rem;
+  }
+  .final-cta h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 1rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .final-cta h2 em { font-style: italic; color: #7dd9a8; }
+  .final-cta p { font-size: 16px; color: rgba(255,255,255,0.55); margin-bottom: 2rem; font-weight: 300; }
+  .final-cta .btn-primary {
+    background: var(--white);
+    color: var(--black);
+    margin-right: 12px;
+  }
+  .final-cta .btn-secondary {
+    border-color: rgba(255,255,255,0.2);
+    color: var(--white);
+  }
+  .final-cta .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+  .final-note { font-size: 13px; color: rgba(255,255,255,0.35); margin-top: 1.25rem; }
+
+  /* FOOTER */
+  footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-brand { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--black); }
+  .footer-brand span { color: var(--green); }
+
+  /* FADE IN ANIMATION */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero > * { animation: fadeUp 0.6s ease forwards; }
+  .hero-badge { animation-delay: 0s; }
+  .hero h1 { animation-delay: 0.1s; }
+  .hero p { animation-delay: 0.2s; }
+  .hero-ctas { animation-delay: 0.3s; }
+  .hero-note { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">PayFlow<span>AP</span></div>
+  <div class="nav-right">
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="https://calendly.com/payflowap/15-minute-discovery-call" class="nav-cta">Book a demo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Built for property management companies</div>
+  <h1>Stop hiring for AP.<br><em>Automate it.</em></h1>
+  <p>PayFlow handles invoice intake, vendor payments, and approval workflows — saving most clients $46,000+ per year compared to a full-time hire.</p>
+  <div class="hero-ctas">
+    <a href="https://calendly.com/payflowap/15-minute-discovery-call" class="btn-primary">Book a 20-min demo</a>
+    <a href="#pricing" class="btn-secondary">See pricing</a>
+  </div>
+  <p class="hero-note">No commitment &nbsp;·&nbsp; 90-day ROI guarantee &nbsp;·&nbsp; Onboarding included</p>
+</div>
+
+<hr class="divider">
+
+<!-- COST COMPARE -->
+<section>
+  <div class="container">
+    <div class="section-label">The real cost of an AP hire</div>
+    <h2 class="section-title">You're not hiring for $20/hr.<br>You're hiring for $65,000/yr.</h2>
+    <p class="section-sub">Salary is only part of the story. Once you add taxes, benefits, recruiting, and overhead, the true cost of that hire is nearly double the base wage.</p>
+    <div class="cost-grid">
+      <div class="cost-card">
+        <div class="cost-card-label">Hiring an AP person</div>
+        <div class="cost-line"><span>Base salary ($20/hr)</span><span>$41,600</span></div>
+        <div class="cost-line"><span>Payroll taxes (~10%)</span><span>$4,160</span></div>
+        <div class="cost-line"><span>Health benefits</span><span>$7,000</span></div>
+        <div class="cost-line"><span>PTO + workers comp</span><span>$3,100</span></div>
+        <div class="cost-line"><span>Recruiting + onboarding</span><span>$4,000</span></div>
+        <div class="cost-line"><span>Management overhead</span><span>$5,000</span></div>
+        <div class="cost-line"><span>True annual cost</span><span>~$64,860</span></div>
+      </div>
+      <div class="cost-card highlight">
+        <div class="cost-card-label">PayFlow AP software</div>
+        <div class="cost-line"><span>Annual subscription</span><span>from $18,000</span></div>
+        <div class="cost-line"><span>Recruiting</span><span class="cost-zero">$0</span></div>
+        <div class="cost-line"><span>Benefits / HR</span><span class="cost-zero">$0</span></div>
+        <div class="cost-line"><span>Training time</span><span class="cost-zero">$0</span></div>
+        <div class="cost-line"><span>Turnover risk</span><span class="cost-zero">$0</span></div>
+        <div class="cost-line"><span>Sick days / PTO</span><span class="cost-zero">$0</span></div>
+        <div class="cost-line"><span>Potential annual savings</span><span>$46,000+</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- COMPARE -->
+<section>
+  <div class="container">
+    <div class="section-label">Hiring vs. automating</div>
+    <h2 class="section-title">A person or a platform?</h2>
+    <p class="section-sub">AP work is repetitive, rule-based, and time-consuming — exactly the kind of work software does better than people.</p>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h3>Hiring an AP person</h3>
+        <div class="compare-item"><div class="ci-dot bad"></div>~$65,000/yr true fully-loaded cost</div>
+        <div class="compare-item"><div class="ci-dot bad"></div>Weeks to hire, weeks to onboard</div>
+        <div class="compare-item"><div class="ci-dot bad"></div>Manual errors and missed invoices</div>
+        <div class="compare-item"><div class="ci-dot bad"></div>Only works business hours</div>
+        <div class="compare-item"><div class="ci-dot bad"></div>Turnover risk — starts over every time</div>
+      </div>
+      <div class="compare-card good">
+        <h3>PayFlow AP</h3>
+        <div class="compare-item"><div class="ci-dot good"></div>Priced by invoice volume, not headcount</div>
+        <div class="compare-item"><div class="ci-dot good"></div>Up and running in weeks, not months</div>
+        <div class="compare-item"><div class="ci-dot good"></div>Zero data entry errors, full audit trail</div>
+        <div class="compare-item"><div class="ci-dot good"></div>Runs 24/7, never calls in sick</div>
+        <div class="compare-item"><div class="ci-dot good"></div>No turnover — ever</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FEATURES -->
+<section>
+  <div class="container">
+    <div class="section-label">What's included</div>
+    <h2 class="section-title">Everything in every plan</h2>
+    <p class="section-sub">No add-ons, no nickel-and-diming. All core features come with every tier.</p>
+    <div class="features-grid">
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h4>Invoice intake</h4>
+        <p>Email or upload invoices — auto-extracted, coded, and categorized instantly</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h4>Approval workflows</h4>
+        <p>Route bills for sign-off before payment with a full, searchable audit trail</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>Vendor portal</h4>
+        <p>Vendors submit invoices directly — no more back-and-forth emails</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <h4>Payment scheduling</h4>
+        <p>ACH, check, or card — schedule payments or run them automatically</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+        </div>
+        <h4>Accounting sync</h4>
+        <p>Native QuickBooks and Xero integration — no manual exports ever</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <h4>Spend reporting</h4>
+        <p>Real-time AP aging, vendor spend, and cash flow visibility by property</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- METRICS -->
+<section>
+  <div class="container">
+    <div class="section-label">By the numbers</div>
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-num">87%</div>
+        <div class="metric-label">Reduction in AP<br>processing time</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">$46k+</div>
+        <div class="metric-label">Average annual savings<br>vs a full-time hire</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">$3</div>
+        <div class="metric-label">Per-invoice cost vs<br>$21 processed manually</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Priced by invoice volume</h2>
+    <p class="section-sub">You pay for the work being done — not per seat, not per user. As your portfolio grows, your price reflects your actual usage.</p>
+    <div class="pricing-grid">
+
+      <div class="pricing-card">
+        <div class="pricing-name">Starter</div>
+        <div class="pricing-vol">Under 100 invoices / month</div>
+        <div class="pricing-price">$1,500<span class="pricing-period">/mo</span></div>
+        <div class="pricing-roi">Saves ~$3,900/mo vs a full-time hire</div>
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
+          <li><span class="pf-check">✓</span> Up to 100 invoices/mo</li>
+          <li><span class="pf-check">✓</span> Vendor portal</li>
+          <li><span class="pf-check">✓</span> Approval workflows</li>
+          <li><span class="pf-check">✓</span> QuickBooks sync</li>
+          <li><span class="pf-check">✓</span> Email support</li>
+          <li><span class="pf-check">✓</span> Onboarding included</li>
+        </ul>
+        <a href="https://calendly.com/payflowap/15-minute-discovery-call" class="pricing-btn">Book a demo</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most popular</div>
+        <div class="pricing-name">Growth</div>
+        <div class="pricing-vol">100–300 invoices / month</div>
+        <div class="pricing-price">$2,500<span class="pricing-period">/mo</span></div>
+        <div class="pricing-roi">Saves ~$2,900/mo vs a full-time hire</div>
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
+          <li><span class="pf-check">✓</span> Up to 300 invoices/mo</li>
+          <li><span class="pf-check">✓</span> Custom approval workflows</li>
+          <li><span class="pf-check">✓</span> QuickBooks + Xero sync</li>
+          <li><span class="pf-check">✓</span> Unlimited approval users</li>
+          <li><span class="pf-check">✓</span> Priority support + onboarding</li>
+          <li><span class="pf-check">✓</span> 90-day ROI guarantee</li>
+        </ul>
+        <a href="https://calendly.com/payflowap/15-minute-discovery-call" class="pricing-btn primary">Book a demo</a>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-name">Enterprise</div>
+        <div class="pricing-vol">300+ invoices / month</div>
+        <div class="pricing-price">Custom<span class="pricing-period"> quote</span></div>
+        <div class="pricing-roi">Typically replaces 2–3 AP hires</div>
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
+          <li><span class="pf-check">✓</span> Unlimited invoices</li>
+          <li><span class="pf-check">✓</span> Multi-entity / portfolio support</li>
+          <li><span class="pf-check">✓</span> Custom integrations</li>
+          <li><span class="pf-check">✓</span> Dedicated account manager</li>
+          <li><span class="pf-check">✓</span> SLA guarantee</li>
+          <li><span class="pf-check">✓</span> Quarterly business reviews</li>
+        </ul>
+        <a href="https://calendly.com/payflowap/15-minute-discovery-call" class="pricing-btn">Get a custom quote</a>
+      </div>
+
+    </div>
+    <p class="pricing-note">All plans billed monthly &nbsp;·&nbsp; No setup fees &nbsp;·&nbsp; Cancel anytime</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- GUARANTEE -->
+<section>
+  <div class="container">
+    <div class="guarantee-box">
+      <h3>The savings guarantee</h3>
+      <p>We're confident PayFlow will cost less than the hire you're about to make. If you don't see measurable savings in your first 90 days, we'll refund your subscription — no questions asked.</p>
+      <div class="guarantee-items">
+        <div class="g-item">
+          <h4>90-day money back</h4>
+          <p>If the ROI isn't there, full refund. No hoops, no fine print.</p>
+        </div>
+        <div class="g-item">
+          <h4>Onboarding included</h4>
+          <p>We configure your workflows, integrations, and vendor setup for you.</p>
+        </div>
+        <div class="g-item">
+          <h4>Dedicated setup call</h4>
+          <p>A real person walks you through day one — not a help doc.</p>
+        </div>
+        <div class="g-item">
+          <h4>No surprise timelines</h4>
+          <p>We give you a realistic go-live date before you sign anything.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="final-cta">
+  <h2>Ready to stop paying $65k<br>for a job <em>software can do?</em></h2>
+  <p>Book a 20-minute call. We'll show you exactly how it works with your invoice volume.</p>
+  <a href="https://calendly.com/payflowap/15-minute-discovery-call" class="btn-primary">Book your demo call</a>
+
+  <p class="final-note">Most clients see $46,000+ in year-one savings</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">PayFlow<span>AP</span></div>
+  <div>© 2025 PayFlow AP. All rights reserved.</div>
+  <a href="/cdn-cgi/l/email-protection#f4adbba1a6abb1b9b5bdb8" style="color: var(--muted); 
